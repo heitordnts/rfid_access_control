@@ -67,10 +67,10 @@ void usart_init( unsigned int ubrr)
 void usart_transmit( unsigned char data )
 {
 	/* Wait for empty transmit buffer */
-	while ( !( UCSRnA & (1<<UDREn)) )
+	while ( !( UCSR0A & (1<<UDRE0)) )
 	;
 	/* Put data into buffer, sends the data */
-	UDRn = data;
+	UDR0 = data;
 }
 
 
