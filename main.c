@@ -37,6 +37,13 @@
 
 
 #include <avr/io.h>
+#include <SPI.h>
+//#include <MFRC522.h>
+
+
+#define RST_PIN   9     // Configurable, see typical pin layout above
+#define SS_PIN    10    // Configurable, see typical pin layout above
+
 
 #define FOSC 16000000 // Clock Speed
 #define BAUD 9600
@@ -51,6 +58,12 @@
 #define INPUT 0
 #define OUTPUT 1
 #define PULL_UP 1
+
+
+//MFRC522 mfrc522(SS_PIN, RST_PIN);   // Create MFRC522 instance
+//MFRC522::MIFARE_Key key;
+
+//Ultrassonic
 
 
 void usart_init( unsigned int ubrr)
@@ -72,11 +85,35 @@ void usart_transmit( unsigned char data )
 	/* Put data into buffer, sends the data */
 	UDR0 = data;
 }
+void usart_print(char *string,unsigned int len){
+	for(unsigned i=0;i< len;i++)
+		usart_transmit(string[i]);
+}
 
+void usart_println(char *string,unsigned int len){
+	usart_print(string,len);
+	usart_transmit('\n');
+}
+
+int rfid_authentication(){
+
+	if ( ! mfrc522.PICC_IsNewCardPresent() || ! mfrc522.PICC_ReadCardSerial() ) {
+		delay(50);
+		return -1;//error RFID read
+	}
+
+
+	usart_print("UID: ");
+	for (byte i = 0; i < mfrc522.uid.size; i++) {
+		usart_transmit(mfrc522.uid.uidByte[i] < 0x10 ? " 0" : " ");
+		usart_transmit(mfrc522.uid.uidByte[i], HEX);
+	} 
+}
 
 void setup() {
 	//pins RFID pinos: 9-13 PORTB
-	//MFRC522();	
+  	//SPI.begin();         // Init SPI bus
+	//mfrc522.PCD_Init();  // Init MFRC522 card
 
 	//chave on / off leds
 	DDRB &= ~(1 << CHAVE);//pb0 input 
@@ -88,12 +125,12 @@ void setup() {
 	//Ultrassonic();
 	usart_init(MYUBRR);
 } 
-
 int main(){
 
 	setup();
 
 	while(1){
+		
 		if(PINB & (1 << CHAVE)){ 
 			PORTD |= (1 << LED_1);
 			
