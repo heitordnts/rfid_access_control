@@ -71,7 +71,7 @@ ISR(TIMER0_OVF_vect){
 	cli();
 
 //	OCR0A = dt_cycle_1--;
-	if(dt_cycle_1 > 1473) {
+	if(dt_cycle_1 > 2000) {
 		
 		dt_cycle_1 = 0;
 		t ^= 1;
@@ -176,7 +176,7 @@ void setup() {
 	TCCR2B |= (5 << CS20);//prescaler  
 	
 	TCCR0A |= (1 << COM0A1) | (3 << WGM00);
-	TCCR0B |= (3 << CS00);//prescaler  off 1 8 32 64 128 256 1024 
+	TCCR0B |= (7 << CS00);//prescaler  off 1 8 32 64 128 256 1024 
 	
 	/* interrupcao overflow*/
 	TIMSK2 |= 1; 
